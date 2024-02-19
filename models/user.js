@@ -30,7 +30,8 @@ const userSchema = new mongoose.Schema({
         }
     },
     role : {
-        type : emun ,
+        type : String ,
+        enum : ["user","admin"],
 
     },
     tokens: [{
