@@ -1,13 +1,13 @@
 const Cart = require("../models/carts");
-const User = require("../models/user");
 
 
 exports.handleGetCartOfUser = async (req, res) => {
     try {
         let cart = await Cart.findOne({ owner: req.user._id }).populate('products').exec();
         // console.log(cart);
-
-        return res.send(cart);
+        if (!cart)
+            return res.send([]);
+        return res.send(cart?.products);
     } catch (err) {
         console.log(err);
         return res.status(400).send();
@@ -16,14 +16,41 @@ exports.handleGetCartOfUser = async (req, res) => {
 
 
 exports.handleAddProductInCart = async (req, res) => {
-    const cart = new Cart({ owner: req.user._id, products: [req.params.productId] });
+    const oldProducts = await Cart.findOne({ owner: req.user._id });
+    // console.log(oldProducts);
+    if (oldProducts?.products?.includes(req.params.productId)) {
+        return res.status(400).send({ error: 'Product is already in the cart' });
+    }
     try {
-        // const oldProducts = await Cart.findOne({owner:req.user._id});
-        // console.log(oldProducts);
-        await cart.save();
-        console.log(cart);
+        if (!oldProducts) {
+            const cart = new Cart({
+                products: [req.params.productId],
+                owner: req.user._id
+            });
+            await cart.save();
+        }
+        else
+            await Cart.findByIdAndUpdate(oldProducts._id, { products: [...oldProducts.products, req.params.productId] })
+        // console.log(test);
 
         return res.send("succesfully added product in cart");
+    } catch (err) {
+        return res.send(err);
+    }
+}
+
+exports.handleDeleteProductInCart = async (req, res) => {
+    const productId = req.params.productId;
+    // console.log(productId);
+    try {
+        const oldCart = await Cart.findOne({ owner: req.user._id });
+        if (!oldCart) {
+            return res.status(404).send({ error: 'Cart not found' });
+        }
+
+        // Use $pull to remove the specified productId from the products array
+        await Cart.findByIdAndUpdate(oldCart._id, { $pull: { products: productId } });
+        res.send(`successfully deleted product ${productId}`);
     } catch (err) {
         return res.send(err);
     }
