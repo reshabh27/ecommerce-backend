@@ -82,7 +82,7 @@ exports.handleUpdateMyProfile = async (req, res) => {
 
 exports.handleDeleteMyProfile = async (req, res) => {
     try {
-        console.log(req.user._id);
+        // console.log(req.user._id);
         await User.findByIdAndDelete(req.user._id)
         // await req.user.remove()
         // sendCancelationEmail(req.user.email, req.user.name)
