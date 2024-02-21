@@ -1,10 +1,11 @@
 const express = require('express');
-const {handleGetCartById} = require('../controllers/cart');
+const {handleGetCartOfUser, handleAddProductInCart} = require('../controllers/cart');
 const auth = require('../middlewares/auth');
 
 const router = express.Router();
 
-router.get('/:id',auth,handleGetCartById)
+router.get('/',auth,handleGetCartOfUser)
+router.patch('/addproductincart/:productId',auth,handleAddProductInCart);
 
 
 module.exports = router ;

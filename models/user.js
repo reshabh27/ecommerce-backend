@@ -45,7 +45,7 @@ const userSchema = new mongoose.Schema({
     }],
 })
 
-userSchema.virtual('Cart', {
+userSchema.virtual('mycart', {
     ref: 'Cart',
     localField: '_id',
     foreignField: 'owner'
