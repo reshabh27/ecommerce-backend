@@ -1,53 +1,62 @@
 const Product = require("../models/products");
 
 
+// GET /tasks?limit=1&skip=2
+// GET /tasks?sortBy=createdAt:desc
+exports.handleGetAllProducts = async (req, res) => {
+    // const match = {};
+    const sort = {};
+    let limit = parseInt(req.query.limit) || 0;
+    let skip = parseInt(req.query.skip) || 0;
 
-exports.handleGetAllProducts = async (req,res) => {
+    if (req.query.sortBy) {
+        const parts = req.query.sortBy.split(':');
+        sort[parts[0]] = parts[1] === 'desc' ? -1 : 1;
+    }
+
     try {
-        const products = await Product.find({});
-        // console.log(products);
+        const products = await Product.find().sort(sort).skip(skip).limit(limit);
+
         res.status(200).send(products);
     } catch (err) {
-        res.send(err)
+        res.status(500).send(err);
     }
-}
+};
 
-exports.handleGetProductById = async(req,res) => {
+exports.handleGetProductById = async (req, res) => {
     try {
         // console.log(req.params);
         const product = await Product.findById(req.params.id)
         return res.send(product);
     } catch (err) {
-       return  res.send(err);
+        return res.send(err);
     }
 }
 
 
-exports.handleAddProduct = async(req,res) => {
-    if(req.role === 'user')
-    {
-        return res.status(403).send({message : "You do not have permission to perform this action."});
+exports.handleAddProduct = async (req, res) => {
+    if (req.role === 'user') {
+        return res.status(403).send({ message: "You do not have permission to perform this action." });
     }
     try {
         const product = new Product(req.body);
         // console.log(product);
         await product.save();
-        return res.status(201).send({message : "Successfully added product."})
+        return res.status(201).send({ message: "Successfully added product." })
     } catch (err) {
         console.log(err);
         return res.send(err);
     }
 }
 
-exports.handleProductUpdate = async(req,res) => {
-    if(req.role === 'user')
-    {
-        return res.status(403).send({message : "You do not have permission to perform this action."});
+exports.handleProductUpdate = async (req, res) => {
+    if (req.role === 'user') {
+        return res.status(403).send({ message: "You do not have permission to perform this action." });
     }
     try {
-        const updates = req.body ;
+        const updates = req.body;
         // console.log(updates);
-        await Product.findByIdAndUpdate(req.params.id,updates);
+        await Product.findByIdAndUpdate(req.params.id, updates);
         return res.send("updated fields successfully");
     } catch (err) {
         return res.send(err);
@@ -56,10 +65,9 @@ exports.handleProductUpdate = async(req,res) => {
 
 
 
-exports.handleProductDelete = async(req,res) => {
-    if(req.role === 'user')
-    {
-        return res.status(403).send({message : "You do not have permission to perform this action."});
+exports.handleProductDelete = async (req, res) => {
+    if (req.role === 'user') {
+        return res.status(403).send({ message: "You do not have permission to perform this action." });
     }
     try {
         await Product.findByIdAndDelete(req.params.id);
