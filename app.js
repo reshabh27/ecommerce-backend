@@ -34,3 +34,11 @@ app.use(errorController)
 app.listen(5000, () => {
     console.log("server started at 5000");
 })
+
+
+
+process.on('unhandledRejection', (err) => {
+    console.log(err.name, err.message)
+    console.log('unhandledRejection occured! Shutting down')
+    process.exit(1)
+})
