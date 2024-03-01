@@ -1,3 +1,4 @@
+const CustomError = require("../utils/CustomError");
 
 
 const devErrors = (res, err) => {
@@ -11,7 +12,7 @@ const devErrors = (res, err) => {
 };
 
 const castErrorHandler = (err) => {
-    return new customError(
+    return new CustomError(
         `Invalid value ${err.value} of field ${err.path}`,
         404
     );

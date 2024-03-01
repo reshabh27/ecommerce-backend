@@ -4,6 +4,7 @@ const userRouter = require('./routes/user');
 const productRouter = require('./routes/product');
 const cartRouter = require('./routes/cart.js');
 const errorController = require('./controllers/errorController.js');
+const CustomError = require('./utils/CustomError.js');
 require('dotenv').config();
 require('./db/db.js')
 
@@ -20,9 +21,11 @@ app.use('/api/v1/products', productRouter)
 app.use('/api/v1/cart', cartRouter);
 
 app.all('*', (req, res, next) => {
-    const err = new Error(`Can't find ${req.originalUrl} on the server`);
-    err.status = 'fail';
-    err.statusCode = 404;
+    // const err = new Error(`Can't find ${req.originalUrl} on the server`);
+    // err.status = 'fail';
+    // err.statusCode = 404;
+    const err = new CustomError(`The URL ${req.originalUrl} is not available`, 404)
+
     next(err);
 })
 
