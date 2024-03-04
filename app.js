@@ -5,6 +5,9 @@ const productRouter = require('./routes/product');
 const cartRouter = require('./routes/cart.js');
 const errorController = require('./controllers/errorController.js');
 const CustomError = require('./utils/CustomError.js');
+const rateLimit = require('express-rate-limit');
+
+
 require('dotenv').config();
 require('./db/db.js')
 
@@ -19,6 +22,16 @@ process.on('uncaughtException', (err) => {
 
 
 const app = express();
+
+// rate limiting will prevent brute force attack and denial of service attack
+let limiter = rateLimit({
+    max: 1000,
+    windowMs: 60 * 60 * 1000,
+    message: `we have recevied too many request in last hour from your ip.Please try after an hour.`
+});
+
+app.use('/api', limiter)
+
 
 app.use(express.json())
 app.use(cors())
