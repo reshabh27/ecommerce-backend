@@ -1,16 +1,17 @@
 const mongoose = require('mongoose');
-const validator = require('validator') 
+const validator = require('validator')
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcryptjs')
+const crypto = require('crypto')
 
 const userSchema = new mongoose.Schema({
-    name : {
-        type:String,
+    name: {
+        type: String,
         required: true,
         trim: true
     },
-    email : {
-        type : String,
+    email: {
+        type: String,
         unique: true,
         required: true,
         trim: true,
@@ -21,9 +22,9 @@ const userSchema = new mongoose.Schema({
             }
         }
     },
-    password : {
-        type : String,
-        required : true,
+    password: {
+        type: String,
+        required: true,
         minlength: 7,
         trim: true,
         validate(value) {
@@ -32,9 +33,9 @@ const userSchema = new mongoose.Schema({
             }
         }
     },
-    role : {
-        type : String ,
-        enum : ["user","admin"],
+    role: {
+        type: String,
+        enum: ["user", "admin"],
 
     },
     tokens: [{
@@ -43,6 +44,8 @@ const userSchema = new mongoose.Schema({
             required: true
         }
     }],
+    resetPasswordHash: String,
+    resetTokenExpire: Date
 })
 
 userSchema.virtual('mycart', {
@@ -53,12 +56,20 @@ userSchema.virtual('mycart', {
 
 userSchema.methods.generateAuthToken = async function () {
     const user = this
-    const token = jwt.sign({ _id: user._id.toString() , role:user.role}, process.env.JWT_SECRET)
+    const token = jwt.sign({ _id: user._id.toString(), role: user.role }, process.env.JWT_SECRET)
 
     user.tokens = user.tokens.concat({ token })
     await user.save()
 
     return token
+}
+
+userSchema.methods.createResetPasswordToken = function () {
+    const resetToken = crypto.randomBytes(32).toString('hex')
+    this.resetPasswordHash = crypto.createHash('sha256').update(resetToken).digest('hex')
+    this.resetTokenExpire = Date.now() + 30 * 60 * 1000
+    // console.log(resetToken, this.resetPasswordHash)
+    return resetToken;
 }
 
 userSchema.statics.findByCredentials = async (email, password) => {
