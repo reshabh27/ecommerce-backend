@@ -5,14 +5,34 @@ const sendEmail = require("../utils/email")
 const crypto = require('crypto');
 
 
+// to prevent jwt leak in cross site scripting attack
+const createSendResponse = async (user, statusCode, res) => {
+    const token = await user.generateAuthToken()
+
+    const options = {
+        maxAge: process.env.LOGIN_EXPIRES,
+        httpOnly: true
+    }
+
+    if (process.env.NODE_ENV === 'production')
+        options.secure = true;
+
+    res.cookie('jwt', token, options);
+
+    res.status(statusCode).send({ user, token })
+}
+
+
+
 
 exports.handleSignUp = asyncErrorHandler(async (req, res, next) => {
     const user = new User(req.body)
     await user.save()
     // console.log(user);
     // sendWelcomeEmail(user.email, user.name)
-    const token = await user.generateAuthToken()
-    res.status(201).send({ user, token })
+    createSendResponse(user, 201, res);
+    // const token = await user.generateAuthToken()
+    // res.status(201).send({ user, token })
 })
 
 
@@ -20,18 +40,21 @@ exports.handleSignUp = asyncErrorHandler(async (req, res, next) => {
 exports.handleLogIn = asyncErrorHandler(async (req, res, next) => {
     const user = await User.findByCredentials(req.body.email, req.body.password)
     // console.log(user);
-    const token = await user.generateAuthToken()
-    res.send({ user, token })
+    createSendResponse(user, 200, res);
+    // const token = await user.generateAuthToken()
+    // res.send({ user, token })
 })
 
 
 
 exports.handleLogOut = asyncErrorHandler(async (req, res, next) => {
+    // console.log(req.user.token);
     req.user.tokens = req.user.tokens.filter((token) => {
         return token.token !== req.token
     })
+    // console.log("lol", req.user.token);
     await req.user.save()
-    res.send()
+    res.send("successfully loged out")
 })
 
 
@@ -122,9 +145,7 @@ exports.resetPassword = asyncErrorHandler(async (req, res, next) => {
     user.resetTokenExpire = undefined
     // user.save();
 
-    const token = await user.generateAuthToken()
-    return res.send({ user, token })
-
-    // res.send("hey");
-
+    createSendResponse(user, 200, res);
+    // const token = await user.generateAuthToken()
+    // return res.send({ user, token })
 })
