@@ -7,6 +7,8 @@ const errorController = require('./controllers/errorController.js');
 const CustomError = require('./utils/CustomError.js');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const sanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
 
 
 require('dotenv').config();
@@ -37,11 +39,23 @@ let limiter = rateLimit({
 
 app.use('/api', limiter)
 
+app.use(cors())
 
 // by specifying amount of data we are getting from req body. it will prevent denial of service attack
 // if body has more than 10kb of data then it will truncate to 10kb then run
 app.use(express.json({ limit: '10kb' }))
-app.use(cors())
+// after above line we have the req body means we have recevied the data
+
+
+// this line should be written after we recevied the req body 
+// no sql query injection problem
+// it will look for any nosql query in req body/ req query string/ req parameter and it will filter out '$' and '.' , it will be removed.
+//  in mongodb operators are written using '.' & '$' 
+app.use(sanitize());
+
+
+// it will delete any user input from malicious html code
+app.use(xss());
 
 
 
