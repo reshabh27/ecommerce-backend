@@ -4,3 +4,4 @@
 - can correct model Cart : currently relationship is one to many can make it like many to many from user to product.
 - payment integration through razorpay
 - reset password and email verification
+- sync timing of jwt token sent in cookie and jwt token in the userDB
