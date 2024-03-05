@@ -45,7 +45,10 @@ const userSchema = new mongoose.Schema({
         }
     }],
     resetPasswordHash: String,
-    resetTokenExpire: Date
+    resetTokenExpire: Date,
+    isVerified: {
+        type: Boolean,
+    }
 })
 
 userSchema.virtual('mycart', {
@@ -77,6 +80,10 @@ userSchema.statics.findByCredentials = async (email, password) => {
 
     if (!user) {
         throw new Error('Unable to login')
+    }
+
+    if (!user.isVerified) {
+        throw new Error('Please verify Email first');
     }
 
     const isMatch = await bcrypt.compare(password, user.password)

@@ -6,7 +6,7 @@ MONGO_URL =
 
     NODE_ENV = development
 
-// form mailtrap
+// from mailtrap
 EMAIL_USER =
     EMAIL_PASSWORD =
 

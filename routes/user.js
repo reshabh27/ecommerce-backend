@@ -2,7 +2,7 @@ const express = require('express')
 // const User = require('../models/user')
 const auth = require('../middlewares/auth')
 // const rateLimit = require('express-rate-limit');
-const { handleLogIn, handleSignUp, handleLogOut, handleLogOutAll, handleGetMyProfile, handleUpdateMyProfile, handleDeleteMyProfile, forgotPassword, resetPassword } = require('../controllers/user')
+const { handleLogIn, handleSignUp, handleLogOut, handleLogOutAll, handleGetMyProfile, handleUpdateMyProfile, handleDeleteMyProfile, forgotPassword, resetPassword, handleVerifyEmail } = require('../controllers/user')
 const router = new express.Router()
 
 // for limiting based on userid
@@ -17,6 +17,8 @@ const router = new express.Router()
 
 
 router.post('/', handleSignUp)
+
+router.get('/verifyAccount/:userId/:uniqueString', handleVerifyEmail)
 
 router.post('/login', handleLogIn)
 

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator')
 const jwt = require('jsonwebtoken')
-const bcrypt = require('bcryptjs')
+
 
 const userVerificationSchema = new mongoose.Schema({
     userId: {
@@ -28,4 +28,4 @@ const userVerificationSchema = new mongoose.Schema({
 
 const UserVerification = mongoose.model('UserVerification', userVerificationSchema);
 
-module.exports = UserVerificationSchema;
+module.exports = UserVerification;
