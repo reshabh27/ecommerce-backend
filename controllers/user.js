@@ -5,7 +5,11 @@ const sendEmail = require("../utils/email")
 const crypto = require('crypto');
 
 
+
 // to prevent jwt leak in cross site scripting attack
+
+// cookie has been sent only from here but browser automatically remember
+// for every request backend is not sending every time just remember.
 const createSendResponse = async (user, statusCode, res) => {
     const token = await user.generateAuthToken()
 

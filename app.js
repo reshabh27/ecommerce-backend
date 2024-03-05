@@ -6,10 +6,14 @@ const cartRouter = require('./routes/cart.js');
 const errorController = require('./controllers/errorController.js');
 const CustomError = require('./utils/CustomError.js');
 const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 
 
 require('dotenv').config();
 require('./db/db.js')
+
+const app = express();
+
 
 
 process.on('uncaughtException', (err) => {
@@ -20,8 +24,9 @@ process.on('uncaughtException', (err) => {
     })
 })
 
+// it will add some more security headers
+app.use(helmet());
 
-const app = express();
 
 // rate limiting will prevent brute force attack and denial of service attack
 let limiter = rateLimit({
@@ -33,8 +38,12 @@ let limiter = rateLimit({
 app.use('/api', limiter)
 
 
-app.use(express.json())
+// by specifying amount of data we are getting from req body. it will prevent denial of service attack
+// if body has more than 10kb of data then it will truncate to 10kb then run
+app.use(express.json({ limit: '10kb' }))
 app.use(cors())
+
+
 
 app.use('/api/v1/user', userRouter)
 app.use('/api/v1/products', productRouter)
