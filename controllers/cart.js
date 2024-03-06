@@ -1,14 +1,18 @@
 const Cart = require("../models/carts");
+const Product = require("../models/products");
 const User = require("../models/user");
 const asyncErrorHandler = require("../utils/asyncErrorHandler");
 
 
 exports.handleGetCartOfUser = asyncErrorHandler(async (req, res, next) => {
-    let cart = await Cart.find({ owner: req.user._id }).populate('products').exec();
-    // console.log(cart);
-    if (!cart)
-        return res.send([]);
-    return res.send(cart?.products);
+    let cart = await User.findById(req.user._id).populate({
+        path: 'mycart',
+        populate: {
+            path: 'productId',
+            model: 'Product'
+        }
+    });
+    return res.status(200).send(cart.mycart);
 })
 
 

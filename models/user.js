@@ -49,6 +49,8 @@ const userSchema = new mongoose.Schema({
     isVerified: {
         type: Boolean,
     }
+}, {
+    toJSON: { virtuals: true }
 })
 
 userSchema.virtual('mycart', {
