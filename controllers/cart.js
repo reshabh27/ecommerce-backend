@@ -1,9 +1,10 @@
 const Cart = require("../models/carts");
+const User = require("../models/user");
 const asyncErrorHandler = require("../utils/asyncErrorHandler");
 
 
 exports.handleGetCartOfUser = asyncErrorHandler(async (req, res, next) => {
-    let cart = await Cart.findOne({ owner: req.user._id }).populate('products').exec();
+    let cart = await Cart.find({ owner: req.user._id }).populate('products').exec();
     // console.log(cart);
     if (!cart)
         return res.send([]);
@@ -12,21 +13,20 @@ exports.handleGetCartOfUser = asyncErrorHandler(async (req, res, next) => {
 
 
 exports.handleAddProductInCart = asyncErrorHandler(async (req, res, next) => {
-    const oldProducts = await Cart.findOne({ owner: req.user._id });
-    // console.log(oldProducts);
-    if (oldProducts?.products?.includes(req.params.productId)) {
-        return res.status(400).send({ error: 'Product is already in the cart' });
+    const oldEntry = await Cart.findOne({ productId: req.params.productId, userId: req.user._id });
+    // console.log(oldEntry);
+    if (oldEntry) {
+        oldEntry.quantity = req.body.quantity,
+            await oldEntry.save();
     }
-    if (!oldProducts) {
+    else {
         const cart = new Cart({
-            products: [req.params.productId],
-            owner: req.user._id
+            productId: req.params.productId,
+            userId: req.user._id,
+            quantity: req.body.quantity
         });
         await cart.save();
     }
-    else
-        await Cart.findByIdAndUpdate(oldProducts._id, { products: [...oldProducts.products, req.params.productId] })
-    // console.log(test);
     return res.send("succesfully added product in cart");
 })
 

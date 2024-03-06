@@ -26,7 +26,11 @@ const productSchema = new mongoose.Schema({
     timestamps: true
 })
 
-
+productSchema.virtual('myOwners', {
+    ref: 'Cart',
+    localField: '_id',
+    foreignField: 'productId'
+})
 
 
 const Product = mongoose.model('Product', productSchema);

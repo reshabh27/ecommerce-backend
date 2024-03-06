@@ -54,7 +54,7 @@ const userSchema = new mongoose.Schema({
 userSchema.virtual('mycart', {
     ref: 'Cart',
     localField: '_id',
-    foreignField: 'owner'
+    foreignField: 'userId'
 })
 
 userSchema.methods.generateAuthToken = async function () {
